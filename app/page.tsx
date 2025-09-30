@@ -31,10 +31,14 @@ export default function Home() {
   const fetchFolders = async () => {
     try {
       const response = await fetch('/api/folders');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      setFolders(data);
+      setFolders(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching folders:', error);
+      setFolders([]);
     }
   };
 
@@ -42,10 +46,14 @@ export default function Home() {
   const fetchPhotos = async (folderId: string) => {
     try {
       const response = await fetch(`/api/photos?folderId=${folderId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      setPhotos(data);
+      setPhotos(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching photos:', error);
+      setPhotos([]);
     }
   };
 
