@@ -78,12 +78,18 @@ export default function Home() {
         body: JSON.stringify({ name }),
       });
       
+      const data = await response.json();
+      
       if (response.ok) {
         await fetchFolders();
         setIsModalOpen(false);
+      } else {
+        console.error('Failed to create folder:', data);
+        alert(`フォルダーの作成に失敗しました: ${data.details || data.error}`);
       }
     } catch (error) {
       console.error('Error creating folder:', error);
+      alert('フォルダーの作成中にエラーが発生しました');
     }
   };
 
