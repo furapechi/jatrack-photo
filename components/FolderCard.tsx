@@ -10,15 +10,17 @@ interface FolderCardProps {
   };
   isSelected: boolean;
   onSelect: () => void;
+  onOpen: () => void;
   onDelete: () => void;
 }
 
-export default function FolderCard({ folder, isSelected, onSelect, onDelete }: FolderCardProps) {
+export default function FolderCard({ folder, isSelected, onSelect, onOpen, onDelete }: FolderCardProps) {
   const photoCount = folder.photos?.[0]?.count || 0;
 
   return (
     <div
       onClick={onSelect}
+      onDoubleClick={onOpen}
       className={`
         relative group cursor-pointer rounded-lg sm:rounded-xl p-4 sm:p-6 transition-all duration-200 touch-manipulation
         ${isSelected 
@@ -40,27 +42,45 @@ export default function FolderCard({ folder, isSelected, onSelect, onDelete }: F
               {folder.name}
             </h3>
             <p className={`text-xs sm:text-sm ${isSelected ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
-              {photoCount}枚
+              {photoCount}件 · ダブルクリックで開く
             </p>
           </div>
         </div>
         
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className={`
-            opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 sm:p-2 rounded-lg touch-manipulation flex-shrink-0
-            ${isSelected 
-              ? 'hover:bg-white/20 text-white active:bg-white/30' 
-              : 'hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 active:bg-red-100 dark:active:bg-red-900/40'
-            }
-          `}
-          aria-label="フォルダーを削除"
-        >
-          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen();
+            }}
+            className={`
+              hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors
+              ${isSelected 
+                ? 'bg-white/20 text-white hover:bg-white/30' 
+                : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40'
+              }
+            `}
+            aria-label="フォルダーを開く"
+          >
+            開く
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className={`
+              opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-lg touch-manipulation flex-shrink-0
+              ${isSelected 
+                ? 'hover:bg-white/20 text-white active:bg-white/30' 
+                : 'hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 active:bg-red-100 dark:active:bg-red-900/40'
+              }
+            `}
+            aria-label="フォルダーを削除"
+          >
+            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

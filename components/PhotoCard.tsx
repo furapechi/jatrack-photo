@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2, Download, Play } from 'lucide-react';
+import { Trash2, Download, Play, FileText } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ interface PhotoCardProps {
 export default function PhotoCard({ photo, onDelete }: PhotoCardProps) {
   const [showActions, setShowActions] = useState(false);
   const isVideo = photo.mime_type?.startsWith('video/');
+  const isPDF = photo.mime_type === 'application/pdf';
 
   const handleDownload = async () => {
     try {
@@ -41,7 +42,14 @@ export default function PhotoCard({ photo, onDelete }: PhotoCardProps) {
       className="group relative aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-sm hover:shadow-lg transition-all duration-200 touch-manipulation"
       onClick={() => setShowActions(!showActions)}
     >
-      {isVideo ? (
+      {isPDF ? (
+        <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20">
+          <div className="text-center">
+            <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-red-600 dark:text-red-400 mx-auto mb-2" />
+            <p className="text-xs sm:text-sm text-red-700 dark:text-red-300 font-medium px-2">PDF</p>
+          </div>
+        </div>
+      ) : isVideo ? (
         <div className="relative w-full h-full">
           <video
             src={photo.url}
@@ -83,6 +91,18 @@ export default function PhotoCard({ photo, onDelete }: PhotoCardProps) {
             {photo.file_name}
           </p>
           <div className="flex items-center justify-between gap-2">
+            {isPDF && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(photo.url, '_blank');
+                }}
+                className="flex-1 p-2 bg-blue-500/80 hover:bg-blue-500 active:bg-blue-600 rounded-lg backdrop-blur-sm transition-colors touch-manipulation"
+                aria-label="PDFを開く"
+              >
+                <FileText className="w-4 h-4 text-white mx-auto" />
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();

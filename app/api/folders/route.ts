@@ -1,21 +1,31 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    console.log('Fetching folders - Environment check:', {
-      hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    });
+    const { searchParams } = new URL(request.url);
+    const parentId = searchParams.get('parentId');
+
+    console.log('Fetching folders - Parent ID:', parentId);
 
     const supabase = await createClient();
-    const { data: folders, error } = await supabase
+    
+    let query = supabase
       .from('folders')
       .select(`
         *,
         photos!fk_folder(count)
       `)
       .order('created_at', { ascending: false });
+
+    // 親フォルダーIDでフィルタリング（nullの場合はルートフォルダーのみ）
+    if (parentId === 'null' || !parentId) {
+      query = query.is('parent_id', null);
+    } else {
+      query = query.eq('parent_id', parentId);
+    }
+
+    const { data: folders, error } = await query;
 
     if (error) {
       console.error('Supabase error:', error);
@@ -34,18 +44,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name } = await request.json();
+    const { name, parentId } = await request.json();
     
     if (!name || name.trim() === '') {
       return NextResponse.json({ error: 'Folder name is required' }, { status: 400 });
     }
 
-    console.log('Creating folder:', name);
+    console.log('Creating folder:', name, 'Parent ID:', parentId);
 
     const supabase = await createClient();
+    const folderData: any = { name: name.trim() };
+    
+    if (parentId && parentId !== 'null') {
+      folderData.parent_id = parentId;
+    }
+
     const { data, error } = await supabase
       .from('folders')
-      .insert([{ name: name.trim() }])
+      .insert([folderData])
       .select()
       .single();
 

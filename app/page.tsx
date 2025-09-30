@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { FolderPlus, Upload, Images } from 'lucide-react';
+import { FolderPlus, Upload, Images, Home as HomeIcon, ChevronRight } from 'lucide-react';
 import FolderCard from '@/components/FolderCard';
 import PhotoCard from '@/components/PhotoCard';
 import CreateFolderModal from '@/components/CreateFolderModal';
@@ -9,6 +9,7 @@ import CreateFolderModal from '@/components/CreateFolderModal';
 interface Folder {
   id: string;
   name: string;
+  parent_id?: string | null;
   photos: { count: number }[];
 }
 
@@ -20,8 +21,15 @@ interface Photo {
   mime_type?: string;
 }
 
+interface BreadcrumbItem {
+  id: string | null;
+  name: string;
+}
+
 export default function Home() {
   const [folders, setFolders] = useState<Folder[]>([]);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([{ id: null, name: 'ホーム' }]);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,9 +37,12 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // フォルダー一覧を取得
-  const fetchFolders = async () => {
+  const fetchFolders = async (parentId: string | null = null) => {
     try {
-      const response = await fetch('/api/folders');
+      const url = parentId 
+        ? `/api/folders?parentId=${parentId}` 
+        : '/api/folders?parentId=null';
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -59,8 +70,8 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchFolders();
-  }, []);
+    fetchFolders(currentFolderId);
+  }, [currentFolderId]);
 
   useEffect(() => {
     if (selectedFolder) {
@@ -76,13 +87,16 @@ export default function Home() {
       const response = await fetch('/api/folders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ 
+          name,
+          parentId: currentFolderId 
+        }),
       });
       
       const data = await response.json();
       
       if (response.ok) {
-        await fetchFolders();
+        await fetchFolders(currentFolderId);
         setIsModalOpen(false);
       } else {
         console.error('Failed to create folder:', data);
@@ -92,6 +106,21 @@ export default function Home() {
       console.error('Error creating folder:', error);
       alert('フォルダーの作成中にエラーが発生しました');
     }
+  };
+
+  // フォルダーを開く
+  const handleOpenFolder = (folder: Folder) => {
+    setCurrentFolderId(folder.id);
+    setBreadcrumbs([...breadcrumbs, { id: folder.id, name: folder.name }]);
+    setSelectedFolder(null);
+  };
+
+  // パンくずリストでナビゲーション
+  const handleBreadcrumbClick = (index: number) => {
+    const newBreadcrumbs = breadcrumbs.slice(0, index + 1);
+    setBreadcrumbs(newBreadcrumbs);
+    setCurrentFolderId(newBreadcrumbs[newBreadcrumbs.length - 1].id);
+    setSelectedFolder(null);
   };
 
   // フォルダー削除
@@ -107,7 +136,7 @@ export default function Home() {
         if (selectedFolder === folderId) {
           setSelectedFolder(null);
         }
-        await fetchFolders();
+        await fetchFolders(currentFolderId);
       }
     } catch (error) {
       console.error('Error deleting folder:', error);
@@ -134,7 +163,7 @@ export default function Home() {
       }
 
       await fetchPhotos(selectedFolder);
-      await fetchFolders(); // カウント更新のため
+      await fetchFolders(currentFolderId); // カウント更新のため
     } catch (error) {
       console.error('Error uploading photos:', error);
     } finally {
@@ -155,8 +184,8 @@ export default function Home() {
       });
 
       if (response.ok) {
-        await fetchPhotos(selectedFolder!);
-        await fetchFolders(); // カウント更新のため
+      await fetchPhotos(selectedFolder!);
+      await fetchFolders(currentFolderId); // カウント更新のため
       }
     } catch (error) {
       console.error('Error deleting photo:', error);
@@ -196,6 +225,30 @@ export default function Home() {
       </header>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 sm:pb-8">
+        {/* パンくずリスト */}
+        <nav className="flex items-center gap-2 mb-4 px-1 overflow-x-auto pb-2">
+          {breadcrumbs.map((crumb, index) => (
+            <div key={crumb.id || 'home'} className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => handleBreadcrumbClick(index)}
+                className={`
+                  flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm sm:text-base font-medium transition-colors
+                  ${index === breadcrumbs.length - 1
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }
+                `}
+              >
+                {index === 0 && <HomeIcon className="w-4 h-4" />}
+                <span className="whitespace-nowrap">{crumb.name}</span>
+              </button>
+              {index < breadcrumbs.length - 1 && (
+                <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              )}
+            </div>
+          ))}
+        </nav>
+
         {/* フォルダー一覧 */}
         <section className="mb-6 sm:mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4 px-1">
@@ -216,6 +269,7 @@ export default function Home() {
                   folder={folder}
                   isSelected={selectedFolder === folder.id}
                   onSelect={() => setSelectedFolder(folder.id)}
+                  onOpen={() => handleOpenFolder(folder)}
                   onDelete={() => handleDeleteFolder(folder.id)}
                 />
               ))}
@@ -234,7 +288,7 @@ export default function Home() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*,video/*"
+                  accept="image/*,video/*,application/pdf"
                   multiple
                   onChange={handleFileUpload}
                   className="hidden"
