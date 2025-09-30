@@ -164,19 +164,19 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* ヘッダー */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-                <Images className="w-8 h-8 text-white" />
+      {/* ヘッダー - モバイル最適化 */}
+      <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 backdrop-blur-lg bg-opacity-90 dark:bg-opacity-90">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex-shrink-0">
+                <Images className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 truncate">
                   Photo Manager
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="hidden sm:block text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   写真を整理して管理
                 </p>
               </div>
@@ -184,30 +184,31 @@ export default function Home() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg sm:rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 active:scale-95 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base whitespace-nowrap flex-shrink-0"
             >
-              <FolderPlus className="w-5 h-5" />
-              新しいフォルダー
+              <FolderPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">新しいフォルダー</span>
+              <span className="sm:hidden">追加</span>
             </button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 sm:pb-8">
         {/* フォルダー一覧 */}
-        <section className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <section className="mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4 px-1">
             フォルダー
           </h2>
           {folders.length === 0 ? (
-            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700">
-              <FolderPlus className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 sm:py-16 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 mx-1">
+              <FolderPlus className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-400 mb-3 sm:mb-4" />
+              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
                 フォルダーを作成して写真を整理しましょう
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {folders.map((folder) => (
                 <FolderCard
                   key={folder.id}
@@ -224,8 +225,8 @@ export default function Home() {
         {/* 写真一覧 */}
         {selectedFolder && (
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <div className="flex items-center justify-between mb-3 sm:mb-4 px-1">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
                 写真 ({photos.length}枚)
               </h2>
               <div>
@@ -241,26 +242,27 @@ export default function Home() {
                 <label
                   htmlFor="photo-upload"
                   className={`
-                    flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl font-medium 
-                    hover:bg-green-600 transition-all cursor-pointer shadow-lg hover:shadow-xl
+                    flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-green-500 text-white rounded-lg sm:rounded-xl font-medium 
+                    hover:bg-green-600 active:scale-95 transition-all cursor-pointer shadow-lg hover:shadow-xl text-sm sm:text-base
                     ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
-                  <Upload className="w-5 h-5" />
-                  {isUploading ? 'アップロード中...' : '写真をアップロード'}
+                  <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">{isUploading ? 'アップロード中...' : '写真をアップロード'}</span>
+                  <span className="sm:hidden">{isUploading ? '...' : 'アップロード'}</span>
                 </label>
               </div>
             </div>
 
             {photos.length === 0 ? (
-              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700">
-                <Upload className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">
+              <div className="text-center py-12 sm:py-16 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 mx-1">
+                <Upload className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-400 mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
                   写真をアップロードしてください
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
                 {photos.map((photo) => (
                   <PhotoCard
                     key={photo.id}
