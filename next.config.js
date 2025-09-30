@@ -11,6 +11,12 @@ const nextConfig = {
   },
   // Netlify対応
   output: process.env.NETLIFY === 'true' ? 'standalone' : undefined,
+  // 大容量ファイルアップロード対応
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
+  },
 }
 
 module.exports = nextConfig

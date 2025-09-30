@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2, Download } from 'lucide-react';
+import { Trash2, Download, Play } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -10,12 +10,14 @@ interface PhotoCardProps {
     file_name: string;
     url: string;
     created_at: string;
+    mime_type?: string;
   };
   onDelete: () => void;
 }
 
 export default function PhotoCard({ photo, onDelete }: PhotoCardProps) {
   const [showActions, setShowActions] = useState(false);
+  const isVideo = photo.mime_type?.startsWith('video/');
 
   const handleDownload = async () => {
     try {
@@ -39,13 +41,37 @@ export default function PhotoCard({ photo, onDelete }: PhotoCardProps) {
       className="group relative aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-sm hover:shadow-lg transition-all duration-200 touch-manipulation"
       onClick={() => setShowActions(!showActions)}
     >
-      <Image
-        src={photo.url}
-        alt={photo.file_name}
-        fill
-        className="object-cover"
-        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-      />
+      {isVideo ? (
+        <div className="relative w-full h-full">
+          <video
+            src={photo.url}
+            className="w-full h-full object-cover"
+            preload="metadata"
+            playsInline
+            muted
+            loop
+            onMouseEnter={(e) => e.currentTarget.play()}
+            onMouseLeave={(e) => {
+              e.currentTarget.pause();
+              e.currentTarget.currentTime = 0;
+            }}
+          />
+          {/* 再生アイコン */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-black/50 backdrop-blur-sm rounded-full p-3 sm:p-4">
+              <Play className="w-6 h-6 sm:w-8 sm:h-8 text-white fill-white" />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <Image
+          src={photo.url}
+          alt={photo.file_name}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+        />
+      )}
       
       {/* オーバーレイ - モバイルでタップ、デスクトップでホバー */}
       <div className={`

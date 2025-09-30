@@ -9,6 +9,11 @@
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
 
+# 大容量ファイルアップロード対応
+[functions]
+  external_node_modules = ["sharp"]
+  node_bundler = "esbuild"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

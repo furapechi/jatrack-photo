@@ -17,6 +17,7 @@ interface Photo {
   file_name: string;
   url: string;
   created_at: string;
+  mime_type?: string;
 }
 
 export default function Home() {
@@ -227,13 +228,13 @@ export default function Home() {
           <section>
             <div className="flex items-center justify-between mb-3 sm:mb-4 px-1">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
-                写真 ({photos.length}枚)
+                メディア ({photos.length}件)
               </h2>
               <div>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   multiple
                   onChange={handleFileUpload}
                   className="hidden"
@@ -248,7 +249,7 @@ export default function Home() {
                   `}
                 >
                   <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">{isUploading ? 'アップロード中...' : '写真をアップロード'}</span>
+                  <span className="hidden sm:inline">{isUploading ? 'アップロード中...' : '写真・動画をアップロード'}</span>
                   <span className="sm:hidden">{isUploading ? '...' : 'アップロード'}</span>
                 </label>
               </div>
@@ -258,7 +259,7 @@ export default function Home() {
               <div className="text-center py-12 sm:py-16 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 mx-1">
                 <Upload className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-400 mb-3 sm:mb-4" />
                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
-                  写真をアップロードしてください
+                  写真や動画をアップロードしてください
                 </p>
               </div>
             ) : (
