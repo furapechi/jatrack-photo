@@ -13,7 +13,7 @@ export async function GET() {
       .from('folders')
       .select(`
         *,
-        photos(count)
+        photos!fk_folder(count)
       `)
       .order('created_at', { ascending: false });
 
