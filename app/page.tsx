@@ -112,15 +112,16 @@ export default function Home() {
   const handleOpenFolder = (folder: Folder) => {
     setCurrentFolderId(folder.id);
     setBreadcrumbs([...breadcrumbs, { id: folder.id, name: folder.name }]);
-    setSelectedFolder(null);
+    setSelectedFolder(folder.id); // フォルダーを開いたときに自動選択
   };
 
   // パンくずリストでナビゲーション
   const handleBreadcrumbClick = (index: number) => {
     const newBreadcrumbs = breadcrumbs.slice(0, index + 1);
+    const targetFolderId = newBreadcrumbs[newBreadcrumbs.length - 1].id;
     setBreadcrumbs(newBreadcrumbs);
-    setCurrentFolderId(newBreadcrumbs[newBreadcrumbs.length - 1].id);
-    setSelectedFolder(null);
+    setCurrentFolderId(targetFolderId);
+    setSelectedFolder(targetFolderId); // パンくずから移動したときも選択
   };
 
   // フォルダー削除
@@ -277,8 +278,8 @@ export default function Home() {
           )}
         </section>
 
-        {/* 写真一覧 */}
-        {selectedFolder && (
+        {/* 写真・ファイル一覧 */}
+        {(selectedFolder || currentFolderId) && (
           <section>
             <div className="flex items-center justify-between mb-3 sm:mb-4 px-1">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -303,7 +304,7 @@ export default function Home() {
                   `}
                 >
                   <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">{isUploading ? 'アップロード中...' : '写真・動画をアップロード'}</span>
+                  <span className="hidden sm:inline">{isUploading ? 'アップロード中...' : '写真・動画・PDF'}</span>
                   <span className="sm:hidden">{isUploading ? '...' : 'アップロード'}</span>
                 </label>
               </div>
@@ -313,7 +314,7 @@ export default function Home() {
               <div className="text-center py-12 sm:py-16 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 mx-1">
                 <Upload className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-400 mb-3 sm:mb-4" />
                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
-                  写真や動画をアップロードしてください
+                  写真・動画・PDFをアップロードしてください
                 </p>
               </div>
             ) : (
@@ -327,6 +328,22 @@ export default function Home() {
                 ))}
               </div>
             )}
+          </section>
+        )}
+        
+        {/* ファイルアップロードエリア（フォルダー未選択時のヘルプ） */}
+        {!selectedFolder && !currentFolderId && (
+          <section className="mt-8">
+            <div className="text-center py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border-2 border-dashed border-blue-300 dark:border-blue-700">
+              <Images className="w-16 h-16 mx-auto text-blue-500 mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                ファイルをアップロードするには
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                フォルダーをクリックして選択するか、<br className="sm:hidden" />
+                フォルダーをダブルクリックして開いてください
+              </p>
+            </div>
           </section>
         )}
       </div>
